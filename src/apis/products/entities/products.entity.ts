@@ -27,7 +27,7 @@ export class Product {
   @Column()
   price: number;
 
-  @Column()
+  @Column({ default: false })
   isSoldOut: boolean;
   //   soldedAt: Date;
 
