@@ -4,6 +4,7 @@ import { ProductsTag } from 'src/apis/productsTag/entities/productsTag.entity';
 import { User } from 'src/apis/users/entities/user.entity';
 import {
   Column,
+  DeleteDateColumn,
   Entity,
   JoinColumn,
   JoinTable,
@@ -30,6 +31,12 @@ export class Product {
   @Column({ default: false })
   isSoldOut: boolean;
   //   soldedAt: Date;
+
+  // @Column({ default: null })
+  // deletedAt: Date;
+
+  @DeleteDateColumn()
+  deletedAt: Date;
 
   @JoinColumn()
   @OneToOne(() => ProductsSalesLocation)

@@ -11,10 +11,10 @@ export class ProductsSalesLocation {
   @Column()
   addressDetail: string;
 
-  @Column()
+  @Column({ type: 'float' })
   lat: number;
 
-  @Column()
+  @Column({ type: 'float' })
   lng: number;
 
   @Column()

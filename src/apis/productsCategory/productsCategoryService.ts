@@ -21,10 +21,7 @@ export class ProductsCategoryService {
       const result = await this.productsCategoryRepository.find();
       return result;
     } catch (error) {
-      throw new HttpException(
-        error.response.message,
-        error.response.statusCode,
-      );
+      throw error.message;
     }
   }
 
@@ -38,10 +35,7 @@ export class ProductsCategoryService {
         return result;
       }
     } catch (error) {
-      throw new HttpException(
-        error.response.message,
-        error.response.statusCode,
-      );
+      throw error.message;
     }
   }
 
@@ -55,10 +49,7 @@ export class ProductsCategoryService {
       }
       return result;
     } catch (error) {
-      throw new HttpException(
-        error.response.message,
-        error.response.statusCode,
-      );
+      throw error.message;
     }
   }
 
@@ -69,10 +60,7 @@ export class ProductsCategoryService {
       });
       return result;
     } catch (error) {
-      throw new HttpException(
-        error.response.message,
-        error.response.statusCode,
-      );
+      throw error.message;
     }
   }
 
@@ -99,10 +87,7 @@ export class ProductsCategoryService {
         return result;
       }
     } catch (error) {
-      throw new HttpException(
-        error.response.message,
-        error.response.statusCode,
-      );
+      throw error.message;
     }
   }
 }

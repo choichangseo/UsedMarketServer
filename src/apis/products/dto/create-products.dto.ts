@@ -1,4 +1,5 @@
-import { IsNumber, IsString } from 'class-validator';
+import { Contains, IsNumber, IsObject, IsString } from 'class-validator';
+import { ProductsSalesLocationDTO } from 'src/apis/productsSalesLocation/dto/productsSalesLocation.dto';
 
 export class CreateProductsDTO {
   @IsString()
@@ -9,4 +10,10 @@ export class CreateProductsDTO {
 
   @IsNumber()
   readonly price: number;
+
+  @IsObject()
+  readonly productsSalesLocation: ProductsSalesLocationDTO;
+
+  @IsString()
+  readonly productsCategoryId: string;
 }
