@@ -1,4 +1,4 @@
-import { Contains, IsNumber, IsObject, IsString } from 'class-validator';
+import { IsArray, IsNumber, IsObject, IsString } from 'class-validator';
 import { ProductsSalesLocationDTO } from 'src/apis/productsSalesLocation/dto/productsSalesLocation.dto';
 
 export class CreateProductsDTO {
@@ -16,4 +16,7 @@ export class CreateProductsDTO {
 
   @IsString()
   readonly productsCategoryId: string;
+
+  @IsArray()
+  readonly productsTag: string[];
 }

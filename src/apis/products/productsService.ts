@@ -7,6 +7,7 @@ import { InjectRepository } from '@nestjs/typeorm';
 import { Repository } from 'typeorm';
 import { ProductsCategory } from '../productsCategory/entities/productsCategory.entity';
 import { ProductsSalesLocation } from '../productsSalesLocation/entities/productsSalesLocation.entity';
+import { ProductsTag } from '../productsTag/entities/productsTag.entity';
 import { CreateProductsDTO } from './dto/create-products.dto';
 import { UpdateProductDTO } from './dto/update-products.dto';
 import { Product } from './entities/products.entity';
@@ -20,11 +21,13 @@ export class ProductsService {
     private readonly productsSalesLocationRepository: Repository<ProductsSalesLocation>,
     @InjectRepository(ProductsCategory)
     private readonly productsCategoryRepository: Repository<ProductsCategory>,
+    @InjectRepository(ProductsTag)
+    private readonly productsTagRepository: Repository<ProductsTag>,
   ) {}
 
   async getAllProduct() {
     const result = await this.productsRepository.find({
-      relations: ['productsSalesLocation', 'productsCategory'],
+      relations: ['productsSalesLocation', 'productsCategory', 'productsTag'],
     });
     return result;
   }
@@ -32,20 +35,39 @@ export class ProductsService {
   async getOneProduct(id: string) {
     const result = await this.productsRepository.findOne({
       where: { id },
-      relations: ['productsSalesLocation', 'productsCategory'],
+      relations: ['productsSalesLocation', 'productsCategory', 'productsTag'],
     });
     return result;
   }
 
   async updateProduct(id: string, updateProductData: UpdateProductDTO) {
     const check = await this.getOneProduct(id);
+    const { productsTag, ...rest } = updateProductData;
     try {
       if (!check) {
         throw new NotFoundException(`Product with ID: ${id} not found`);
       } else {
+        const productsTagsResult = [];
+        for (let i = 0; i < productsTag.length; i++) {
+          const temp = productsTag[i].replace('#', '');
+
+          const prevTag = await this.productsTagRepository.findOne({
+            where: { name: temp },
+          });
+
+          if (prevTag) {
+            productsTagsResult.push(prevTag);
+          } else {
+            const newTag = await this.productsTagRepository.save({
+              name: temp,
+            });
+            productsTagsResult.push(newTag);
+          }
+        }
         const result = await this.productsRepository.save({
           ...check,
-          ...updateProductData,
+          ...rest,
+          productsTag: productsTagsResult,
         });
         return result;
       }
@@ -63,21 +85,47 @@ export class ProductsService {
       // return result;
 
       // 2. 상품과 거래위치를 같이 등록하는 경우 및 다대일 카테고리
-      const { productsSalesLocation, productsCategoryId, ...productsData } =
-        createProductsData;
+      const {
+        productsSalesLocation,
+        productsCategoryId,
+        productsTag,
+        ...productsData
+      } = createProductsData;
 
       const salesLocationResult =
         await this.productsSalesLocationRepository.save({
           ...productsSalesLocation,
         });
+
       const productsCategoryResult =
         await this.productsCategoryRepository.findOne({
           where: { id: productsCategoryId },
         });
+
+      // productTags ["#전자제품" , "#영등포", "#컴퓨터"]
+      const productsTagsResult = [];
+      for (let i = 0; i < productsTag.length; i++) {
+        const temp = productsTag[i].replace('#', '');
+
+        // 이미 등록된 태그인지 확인해보기
+        const prevTag = await this.productsTagRepository.findOne({
+          where: { name: temp },
+        });
+        // 기존에 태그가 있을 때
+        if (prevTag) {
+          productsTagsResult.push(prevTag);
+        } else {
+          // 기존에 태그가 없을 때
+          const newTag = await this.productsTagRepository.save({ name: temp });
+          productsTagsResult.push(newTag);
+        }
+      }
+
       return await this.productsRepository.save({
         ...productsData,
         productsSalesLocation: salesLocationResult,
         productsCategory: productsCategoryResult,
+        productsTag: productsTagsResult,
       });
     } catch (error) {
       throw error.message;

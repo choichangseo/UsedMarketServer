@@ -6,11 +6,13 @@ import {
   Param,
   Patch,
   Post,
+  UseFilters,
 } from '@nestjs/common';
+import { HttpExceptionFilter } from 'src/commons/filter/http-exception.filter';
 import { CreateProductsDTO } from './dto/create-products.dto';
 import { UpdateProductDTO } from './dto/update-products.dto';
 import { ProductsService } from './productsService';
-
+@UseFilters(HttpExceptionFilter)
 @Controller('product')
 export class ProductsController {
   constructor(private readonly productsService: ProductsService) {}
@@ -21,8 +23,9 @@ export class ProductsController {
   }
 
   @Get(':id')
-  getOneProduct(@Param('id') id: string) {
-    return this.productsService.getOneProduct(id);
+  async getOneProduct(@Param('id') id: string) {
+    const temp = await this.productsService.getOneProduct(id);
+    return temp;
   }
 
   @Delete(':id')
@@ -41,7 +44,6 @@ export class ProductsController {
 
   @Post()
   createProduct(@Body() createProductsData: CreateProductsDTO) {
-    console.log(createProductsData);
     return this.productsService.createProduct(createProductsData);
   }
 }
