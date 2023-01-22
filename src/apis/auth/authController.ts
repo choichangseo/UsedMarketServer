@@ -68,6 +68,47 @@ export class AuthController {
     });
     res.redirect('http://127.0.0.1:5500/front/index.html');
   }
+
+  @Get('/login/naver')
+  @UseGuards(AuthGuard('naver'))
+  async naverLogin(@CurrentUser() currentUser: AuthUser, @Res() res: Response) {
+    let tempUser = await this.userService.findOne({ email: currentUser.email });
+    if (!tempUser) {
+      tempUser = await this.userService.createUser({
+        email: currentUser.email,
+        hashedPassword: '111111',
+        name: currentUser.sub,
+        age: 20,
+      });
+    }
+    this.authService.setRefreshToken({
+      email: tempUser.email,
+      name: tempUser.name,
+      res,
+    });
+    res.redirect('http://127.0.0.1:5500/front/index.html');
+  }
+
+  @Get('/login/kakao')
+  @UseGuards(AuthGuard('kakao'))
+  async kakaoLogin(@CurrentUser() currentUser: AuthUser, @Res() res: Response) {
+    let tempUser = await this.userService.findOne({ email: currentUser.email });
+    if (!tempUser) {
+      tempUser = await this.userService.createUser({
+        email: currentUser.email,
+        hashedPassword: '111111',
+        name: currentUser.sub,
+        age: 20,
+      });
+    }
+    this.authService.setRefreshToken({
+      email: tempUser.email,
+      name: tempUser.name,
+      res,
+    });
+    res.redirect('http://127.0.0.1:5500/front/index.html');
+  }
+
   @UseGuards(AuthGuard('refresh'))
   @Get('/restore')
   restoreAccessToken(@CurrentUser() currentUser: AuthUser) {

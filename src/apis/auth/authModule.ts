@@ -7,10 +7,19 @@ import { TypeOrmModule } from '@nestjs/typeorm';
 import { User } from '../users/entities/user.entity';
 import { JwtRefreshStrategy } from 'src/commons/auth/jwt-refresh.strategy';
 import { JwtGoogleStrategy } from 'src/commons/auth/jwt-google.stratgy';
+import { JwtNaverStrategy } from 'src/commons/auth/jwt-naver.stratgy';
+import { JwtKakaoStrategy } from 'src/commons/auth/jwt-kakao.stratgy';
 
 @Module({
   imports: [JwtModule.register({}), TypeOrmModule.forFeature([User])],
   controllers: [AuthController],
-  providers: [AuthService, UserService, JwtRefreshStrategy, JwtGoogleStrategy],
+  providers: [
+    AuthService,
+    UserService,
+    JwtRefreshStrategy,
+    JwtGoogleStrategy,
+    JwtNaverStrategy,
+    JwtKakaoStrategy,
+  ],
 })
 export class AuthModule {}
