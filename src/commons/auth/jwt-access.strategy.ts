@@ -13,6 +13,7 @@ export class JwtAccessStrategy extends PassportStrategy(Strategy, 'userGuard') {
   }
   async validate(payload: AuthUser) {
     return {
+      id: payload.id,
       email: payload.email,
       sub: payload.sub,
     };

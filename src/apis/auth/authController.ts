@@ -3,7 +3,6 @@ import {
   Controller,
   Get,
   Post,
-  Req,
   Res,
   UnprocessableEntityException,
   UseGuards,
@@ -15,19 +14,19 @@ import { AuthService } from './authService';
 import { CurrentUser } from 'src/commons/auth/rest-user.param';
 import { AuthUser } from 'src/commons/type/type';
 import { AuthGuard } from '@nestjs/passport';
-import { Request, Response } from 'express';
-import { UserDTO } from '../users/dto/create-user.dto';
+import { Response } from 'express';
 
-@Controller('/')
+@Controller('/login')
 export class AuthController {
   //   constructor(private readonly authService: AuthService) {}
   constructor(
     private readonly userService: UserService,
     private readonly authService: AuthService,
   ) {}
-  @Post('/login')
+  @Post()
   async login(@Body() loginData: LoginDTO, @Res() res: Response) {
     const { email, password } = loginData;
+
     // 1. 로그인(이메일과 비밀번호 일치하는 유저 찾기)
     const user = await this.userService.findOne({ email });
 
@@ -40,13 +39,22 @@ export class AuthController {
     if (!isAuth) throw new UnprocessableEntityException('암호가 틀렸습니다.');
 
     // 4. refreshToken 발급받아서 프론트엔드 쿠키에 보내주기
-    this.authService.setRefreshToken({ email, name: user.name, res });
-
+    this.authService.setRefreshToken({
+      id: user.id,
+      email,
+      name: user.name,
+      res,
+    });
     // 5. 일치하는 유저가 있으면 accessToken 만들어서 프론트 엔드에 던져주기
-    return this.authService.getAccessToken({ email, name: user.name });
+    const result = this.authService.getAccessToken({
+      id: user.id,
+      email,
+      name: user.name,
+    });
+    return res.send(result);
   }
 
-  @Get('/login/google')
+  @Get('/google')
   @UseGuards(AuthGuard('google'))
   async googleLogin(
     @CurrentUser() currentUser: AuthUser,
@@ -62,6 +70,7 @@ export class AuthController {
       });
     }
     this.authService.setRefreshToken({
+      id: tempUser.id,
       email: tempUser.email,
       name: tempUser.name,
       res,
@@ -69,7 +78,7 @@ export class AuthController {
     res.redirect('http://127.0.0.1:5500/front/index.html');
   }
 
-  @Get('/login/naver')
+  @Get('/naver')
   @UseGuards(AuthGuard('naver'))
   async naverLogin(@CurrentUser() currentUser: AuthUser, @Res() res: Response) {
     let tempUser = await this.userService.findOne({ email: currentUser.email });
@@ -82,6 +91,7 @@ export class AuthController {
       });
     }
     this.authService.setRefreshToken({
+      id: tempUser.id,
       email: tempUser.email,
       name: tempUser.name,
       res,
@@ -89,7 +99,7 @@ export class AuthController {
     res.redirect('http://127.0.0.1:5500/front/index.html');
   }
 
-  @Get('/login/kakao')
+  @Get('/kakao')
   @UseGuards(AuthGuard('kakao'))
   async kakaoLogin(@CurrentUser() currentUser: AuthUser, @Res() res: Response) {
     let tempUser = await this.userService.findOne({ email: currentUser.email });
@@ -102,6 +112,7 @@ export class AuthController {
       });
     }
     this.authService.setRefreshToken({
+      id: tempUser.id,
       email: tempUser.email,
       name: tempUser.name,
       res,
@@ -113,6 +124,7 @@ export class AuthController {
   @Get('/restore')
   restoreAccessToken(@CurrentUser() currentUser: AuthUser) {
     return this.authService.getAccessToken({
+      id: currentUser.id,
       email: currentUser.email,
       name: currentUser.sub,
     });

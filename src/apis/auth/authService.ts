@@ -4,15 +4,15 @@ import { JwtService } from '@nestjs/jwt';
 @Injectable()
 export class AuthService {
   constructor(private readonly jwtService: JwtService) {}
-  getAccessToken({ email, name }) {
+  getAccessToken({ email, name, id }) {
     return this.jwtService.sign(
-      { email, sub: name },
-      { secret: 'myAccessKey', expiresIn: '10m' },
+      { email, sub: name, id },
+      { secret: 'myAccessKey', expiresIn: '1h' },
     );
   }
-  setRefreshToken({ email, name, res }) {
+  setRefreshToken({ id, email, name, res }) {
     const refreshToken = this.jwtService.sign(
-      { email, sub: name },
+      { id, email, sub: name },
       { secret: 'myRefreshKey', expiresIn: '2w' },
     );
     // 개발환경

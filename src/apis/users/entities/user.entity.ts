@@ -17,4 +17,7 @@ export class User {
 
   @Column()
   age: number;
+
+  @Column({ default: 0 })
+  point: number;
 }
