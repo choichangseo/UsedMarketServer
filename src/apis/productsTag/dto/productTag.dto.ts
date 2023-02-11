@@ -1,4 +1,4 @@
-import { IsArray, IsObject, IsString } from 'class-validator';
+import { IsObject } from 'class-validator';
 import { ProductsTag } from '../entities/productsTag.entity';
 
 export class ProductsTagsDTO {

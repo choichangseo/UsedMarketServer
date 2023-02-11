@@ -7,12 +7,17 @@ import {
   Patch,
   Post,
   UseFilters,
+  UseGuards,
 } from '@nestjs/common';
+import { AuthGuard } from '@nestjs/passport';
+import { CurrentUser } from 'src/commons/auth/rest-user.param';
 import { HttpExceptionFilter } from 'src/commons/filter/http-exception.filter';
+import { AuthUser } from 'src/commons/type/type';
 import { CreateProductsDTO } from './dto/create-products.dto';
 import { UpdateProductDTO } from './dto/update-products.dto';
 import { ProductsService } from './productsService';
 @UseFilters(HttpExceptionFilter)
+@UseGuards(AuthGuard('userGuard'))
 @Controller('product')
 export class ProductsController {
   constructor(private readonly productsService: ProductsService) {}
@@ -43,7 +48,10 @@ export class ProductsController {
   }
 
   @Post()
-  createProduct(@Body() createProductsData: CreateProductsDTO) {
-    return this.productsService.createProduct(createProductsData);
+  createProduct(
+    @Body() createProductsData: CreateProductsDTO,
+    @CurrentUser() currentUser: AuthUser,
+  ) {
+    return this.productsService.createProduct(createProductsData, currentUser);
   }
 }

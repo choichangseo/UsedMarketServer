@@ -1,17 +1,17 @@
 import {
-  Injectable,
   ConflictException,
+  Injectable,
   UnprocessableEntityException,
 } from '@nestjs/common';
 import { InjectRepository } from '@nestjs/typeorm';
+import { AuthUser } from 'src/commons/type/type';
+import { Connection, Repository } from 'typeorm';
+import { User } from '../users/entities/user.entity';
+import { CreatePointTransactionDTO } from './dto/create-pointTransaction.dto';
 import {
   PointTransaction,
   POINT_TRANSACTION_STATUS_ENUM,
 } from './entities/pointTransaction.entity';
-import { Connection, Repository } from 'typeorm';
-import { CreatePointTransactionDTO } from './dto/create-pointTransaction.dto';
-import { AuthUser } from 'src/commons/type/type';
-import { User } from '../users/entities/user.entity';
 
 @Injectable()
 export class PointTransactionService {
@@ -20,6 +20,7 @@ export class PointTransactionService {
     private readonly pointTransactionRepository: Repository<PointTransaction>,
     @InjectRepository(User)
     private readonly userRepository: Repository<User>,
+
     private readonly connection: Connection,
   ) {}
 
@@ -78,7 +79,7 @@ export class PointTransactionService {
     await queryRunner.connect();
 
     // transaction 시작 !!
-    await queryRunner.startTransaction();
+    await queryRunner.startTransaction('SERIALIZABLE');
 
     try {
       // 1. pointTransaction 테이블에 거래기록 1줄 생성
@@ -90,11 +91,14 @@ export class PointTransactionService {
       });
       await queryRunner.manager.save(pointTransaction); // await this.pointTransactionRepository.save(pointTransaction);
 
-      // 2. 유저의 돈 찾아오기
-      const user = await this.userRepository.findOne({
+      // 2. 유저의 돈 찾아오기(비관적 lock을 걸어야함.)
+      // const user = await this.userRepository.findOne({
+      //   where: { id: currentUser.id },
+      // });
+      const user = await queryRunner.manager.findOne(User, {
         where: { id: currentUser.id },
+        lock: { mode: 'pessimistic_write' },
       });
-
       // 3. 유저의 돈 없데이트
       // await this.userRepository.update(
       //   { id: user.id },

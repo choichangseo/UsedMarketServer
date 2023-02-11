@@ -1,6 +1,7 @@
 import { ProductsCategory } from 'src/apis/productsCategory/entities/productsCategory.entity';
 import { ProductsSalesLocation } from 'src/apis/productsSalesLocation/entities/productsSalesLocation.entity';
 import { ProductsTag } from 'src/apis/productsTag/entities/productsTag.entity';
+import { ProductsReply } from 'src/apis/reply/entities/productsReply.entity';
 import { User } from 'src/apis/users/entities/user.entity';
 import {
   Column,
@@ -47,6 +48,9 @@ export class Product {
 
   @ManyToOne(() => User)
   user: User;
+
+  @ManyToOne(() => ProductsReply)
+  productsReply: ProductsReply;
 
   @JoinTable()
   @ManyToMany(() => ProductsTag, (productsTag) => productsTag.product)

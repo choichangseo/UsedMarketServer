@@ -4,6 +4,7 @@ import {
   UnprocessableEntityException,
 } from '@nestjs/common';
 import { InjectRepository } from '@nestjs/typeorm';
+import { AuthUser } from 'src/commons/type/type';
 import { Repository } from 'typeorm';
 import { ProductsCategory } from '../productsCategory/entities/productsCategory.entity';
 import { ProductsSalesLocation } from '../productsSalesLocation/entities/productsSalesLocation.entity';
@@ -76,7 +77,10 @@ export class ProductsService {
     }
   }
 
-  async createProduct(createProductsData: CreateProductsDTO) {
+  async createProduct(
+    createProductsData: CreateProductsDTO,
+    currentUser: AuthUser,
+  ) {
     try {
       // 1번 상품만 등록하는 경우
       // const result = await this.productsRepository.save({
@@ -120,12 +124,12 @@ export class ProductsService {
           productsTagsResult.push(newTag);
         }
       }
-
       return await this.productsRepository.save({
         ...productsData,
         productsSalesLocation: salesLocationResult,
         productsCategory: productsCategoryResult,
         productsTag: productsTagsResult,
+        userId: currentUser.id,
       });
     } catch (error) {
       throw error.message;

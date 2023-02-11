@@ -9,6 +9,8 @@ import { AppController } from './app.controller';
 import { AppService } from './app.service';
 import { typeORMConfig } from './commons/typeorm.config';
 import { ConfigModule } from '@nestjs/config';
+import { ProductsReplyModule } from './apis/reply/replyModule';
+import { TemplateListModule } from './apis/templateList/templateListModule';
 @Module({
   imports: [
     ProductsCategoryModule,
@@ -16,6 +18,8 @@ import { ConfigModule } from '@nestjs/config';
     UserModule,
     AuthModule,
     PointTransactionModule,
+    ProductsReplyModule,
+    TemplateListModule,
     ConfigModule.forRoot({ envFilePath: '.env' }),
     TypeOrmModule.forRoot(typeORMConfig),
   ],
